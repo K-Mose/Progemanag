@@ -2,7 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.Progemanag" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <!-- Primary @null : https://stackoverflow.com/a/65167547 -->
+        <item name="colorPrimary">@null</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
