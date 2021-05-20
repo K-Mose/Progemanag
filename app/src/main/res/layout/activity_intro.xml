@@ -44,7 +44,9 @@
         android:textColor="@color/secondary_text_color"
         android:textSize="@dimen/intro_text_size"
         />
-
+    <!--
+        drawable background problem - https://github.com/material-components/material-components-android/issues/889#issuecomment-621194246
+    -->
     <Button
         android:id="@+id/btn_sign_in_intro"
         android:layout_width="match_parent"
@@ -55,6 +57,7 @@
         android:layout_marginStart="@dimen/btn_marginStartEnd"
         android:layout_marginEnd="@dimen/btn_marginStartEnd"
         android:background="@drawable/shape_button_rounded"
+        app:backgroundTint="@null"
         android:foreground="?attr/selectableItemBackground"
         android:paddingTop="@dimen/btn_paddingTopBottom"
         android:paddingBottom="@dimen/btn_paddingTopBottom"
@@ -62,12 +65,14 @@
         android:textSize="@dimen/btn_text_size"
         android:textColor="@color/white"
         />
+
     <Button
         android:id="@+id/btn_sign_up_intro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:background="@drawable/white_border_shape_button_rounded"
+        app:backgroundTint="@null"
         android:layout_marginTop="@dimen/intro_screen_sign_up_btn_marginTop"
         android:layout_marginStart="@dimen/btn_marginStartEnd"
         android:layout_marginEnd="@dimen/btn_marginStartEnd"
