@@ -1,7 +1,8 @@
-package com.example.progemanag
+package com.example.progemanag.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {
