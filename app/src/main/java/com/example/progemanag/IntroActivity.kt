@@ -16,5 +16,11 @@ class IntroActivity : AppCompatActivity() {
 
         val typeFace: Typeface = Typeface.createFromAsset(assets, "uni-sans.heavy-caps.otf")
         binding.tvAppNameIntro.typeface = typeFace
+
+        binding.apply {
+            btnSignUpIntro.setOnClickListener {
+                startActivity(Intent(this@IntroActivity, SignUpActivity::class.java))
+            }
+        }
     }
 }
