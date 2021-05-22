@@ -7,6 +7,8 @@ import android.util.Log
 import android.widget.Toast
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivitySignInBinding
+import com.example.progemanag.firebase.FirestoreClass
+import com.example.progemanag.models.User
 import com.google.firebase.auth.FirebaseAuth
 
 class SignInActivity : BaseActivity() {
@@ -25,6 +27,12 @@ class SignInActivity : BaseActivity() {
         }
     }
 
+    fun signInSuccess(user: User){
+        hideProgressDialog()
+        startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+        finish()
+    }
+
     private fun signInRegisteredUser(){
         val email: String = _binding.etEmail.text.toString().trim{ it <= ' '}
         val password: String = _binding.etPassword.text.toString().trim{ it <= ' '}
@@ -32,14 +40,14 @@ class SignInActivity : BaseActivity() {
             showProgressDialog(getString(R.string.please_wait))
             auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener {  task ->
-                        hideProgressDialog()
                         if(task.isSuccessful) {
                             Log.d("Sign in :", "signInWithEmail:success")
-                            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+                            FirestoreClass().signInUser(this)
                         } else {
                             Log.w("Sign in :", "signInWithEmail:failure", task.exception)
                             Toast.makeText(baseContext, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show()
+                            hideProgressDialog()
                         }
                     }
         }

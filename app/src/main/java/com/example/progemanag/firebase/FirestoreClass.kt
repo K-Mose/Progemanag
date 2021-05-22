@@ -1,5 +1,7 @@
 package com.example.progemanag.firebase
 
+import android.util.Log
+import com.example.progemanag.activities.SignInActivity
 import com.example.progemanag.activities.SignUpActivity
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
@@ -23,16 +25,33 @@ class FirestoreClass {
 
     private val mFireStore = FirebaseFirestore.getInstance()
 
+    // Firestore에 컬렉션 등록
     fun registerUser(activity: SignUpActivity, userInfo: User){
         mFireStore.collection(Constants.USER) // 컬렉션 생성
                 .document(getCurrentUserID()) // 문서의 식별자를 uuid로 설정
-                .set(userInfo, SetOptions.merge())
+                .set(userInfo, SetOptions.merge()) // 단일 문서를 만들거나 덮어쓰기 위해 set() 사용, 기존 문서가 있다면 merge()
                 .addOnSuccessListener {
                     activity.userRegisteredSuccess()
+                }.addOnFailureListener { e ->
+                    Log.e(activity.javaClass.simpleName,"Error writing documentation", e)
                 }
     }
 
-    fun getCurrentUserID(): String {
+    // Sign In
+    fun signInUser(activity: SignInActivity){
+        mFireStore.collection(Constants.USER)
+                .document(getCurrentUserID())
+                .get()
+                .addOnSuccessListener { document ->
+                    document.toObject(User::class.java)?.also {
+                        activity.signInSuccess(it)
+                    }
+                }.addOnFailureListener { e->
+                    Log.d("UID", getCurrentUserID())
+                    Log.e("SigInUser", "Error writing document", e)
+                }
+    }
+    private fun getCurrentUserID(): String {
         return FirebaseAuth.getInstance().currentUser!!.uid
     }
 }
