@@ -1,7 +1,6 @@
 package com.example.progemanag.activities
 
 import android.app.Dialog
-import android.content.Context
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,7 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
  *
  */
 open class BaseActivity : AppCompatActivity() {
-    lateinit var _typeFace: Typeface
+    private lateinit var _typeFace: Typeface
     val typeFace get() = _typeFace
     lateinit var binding: ActivityBaseBinding
     private var doubleBackToExitPressedOnce = false
@@ -36,6 +35,18 @@ open class BaseActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+    }
+
+    fun setupActionbar(toolbar: androidx.appcompat.widget.Toolbar){
+        setSupportActionBar(toolbar)
+        val actionBar = supportActionBar
+        actionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp)
+            toolbar.setNavigationOnClickListener {
+                onBackPressed()
+            }
+        }
     }
 
     fun showProgressDialog(text: String){
@@ -88,8 +99,6 @@ open class BaseActivity : AppCompatActivity() {
                 setBackgroundColor(ContextCompat.getColor(this@BaseActivity, R.color.snackbar_error_color))
             }
         }
-//        val snackBarView = snackBar.view
-//        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.snackbar_error_color))
         snackBar.show()
     }
 

@@ -1,9 +1,10 @@
-package com.example.progemanag.activities
+ package com.example.progemanag.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivitySignUpBinding
 
@@ -13,26 +14,10 @@ class SignUpActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(_binding.root)
-        setupActionbar()
+        setupActionbar(_binding.toolbarSignUpActivity)
 
         _binding.btnSignUp.setOnClickListener {
             registerUser()
-        }
-
-
-
-    }
-
-    private fun setupActionbar(){
-        setSupportActionBar(_binding.toolbarSignUpActivity)
-        val actionBar = supportActionBar
-
-        actionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp)
-        }
-        _binding.toolbarSignUpActivity.setNavigationOnClickListener {
-            onBackPressed()
         }
     }
 
