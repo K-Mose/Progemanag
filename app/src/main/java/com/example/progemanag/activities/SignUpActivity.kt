@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivitySignUpBinding
+import com.example.progemanag.firebase.FirestoreClass
+import com.example.progemanag.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
@@ -22,6 +24,16 @@ import com.google.firebase.auth.FirebaseUser
             registerUser()
         }
     }
+     
+    fun userRegisteredSuccess(){
+        Toast.makeText(
+                this@SignUpActivity,
+                "You have successfully registered",
+                Toast.LENGTH_SHORT).show()
+        hideProgressDialog()
+        FirebaseAuth.getInstance().signOut()
+        finish()
+    }
 
     private fun registerUser(){
         val name: String = _binding.etName.text.toString().trim { it <= ' '}
@@ -33,13 +45,11 @@ import com.google.firebase.auth.FirebaseUser
             FirebaseAuth.getInstance()
                     .createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
-                        hideProgressDialog()
                         if(task.isSuccessful){
                             val firebaseUser: FirebaseUser = task.result!!.user!!
                             val registeredEmail = firebaseUser.email!!
-                            Toast.makeText(this@SignUpActivity,"$name you have successfully registered the email address $registeredEmail", Toast.LENGTH_SHORT).show()
-                            FirebaseAuth.getInstance().signOut()
-                            finish()
+                            val user = User(firebaseUser.uid, name, registeredEmail)
+                            FirestoreClass().registerUser(this, user)
                         } else {
                             Toast.makeText(this, task.exception!!.message, Toast.LENGTH_SHORT).show()
                         }
