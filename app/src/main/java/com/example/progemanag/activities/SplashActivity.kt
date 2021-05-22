@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.WindowManager
 import com.example.progemanag.databinding.ActivitySplashBinding
+import com.example.progemanag.firebase.FirestoreClass
 
 class SplashActivity : BaseActivity() {
     lateinit var _binding: ActivitySplashBinding
@@ -24,7 +25,14 @@ class SplashActivity : BaseActivity() {
 
         // https://stackoverflow.com/a/63851895
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
+
+            // 자동 로그인 설정
+            var currentUserID = FirestoreClass().getCurrentUserID()
+            if (currentUserID.isNotEmpty()) {
+                startActivity(Intent(this, MainActivity::class.java))
+            } else {
+                startActivity(Intent(this@SplashActivity, IntroActivity::class.java))
+            }
             finish()
         }, 2500)
     }
