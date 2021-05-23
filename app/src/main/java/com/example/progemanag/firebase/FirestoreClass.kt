@@ -1,6 +1,9 @@
 package com.example.progemanag.firebase
 
+import android.app.Activity
 import android.util.Log
+import com.example.progemanag.activities.BaseActivity
+import com.example.progemanag.activities.MainActivity
 import com.example.progemanag.activities.SignInActivity
 import com.example.progemanag.activities.SignUpActivity
 import com.example.progemanag.models.User
@@ -38,13 +41,21 @@ class FirestoreClass {
     }
 
     // Sign In
-    fun signInUser(activity: SignInActivity){
+    fun signInUser(activity: Activity){
         mFireStore.collection(Constants.USER)
                 .document(getCurrentUserID())
                 .get()
                 .addOnSuccessListener { document ->
                     document.toObject(User::class.java)?.also {
-                        activity.signInSuccess(it)
+                        Log.e("ACTIVITY", "${activity.localClassName}")
+                        when (activity) {
+                            is SignInActivity -> {
+                                activity.signInSuccess(it)
+                            }
+                            is MainActivity -> {
+                                activity.updateNavigationUserDetails(it)
+                            }
+                        }
                     }
                 }.addOnFailureListener { e->
                     Log.e("SigInUser", "Error writing document", e)

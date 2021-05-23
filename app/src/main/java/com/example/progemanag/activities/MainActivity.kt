@@ -2,16 +2,26 @@ package com.example.progemanag.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
+import androidx.core.view.get
+import com.bumptech.glide.Glide
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityMainBinding
+import com.example.progemanag.databinding.NavHeaderMainBinding
+import com.example.progemanag.firebase.FirestoreClass
+import com.example.progemanag.models.User
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
-    lateinit var _binding: ActivityMainBinding
+    private lateinit var _binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -19,6 +29,25 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupActionBar()
 
         _binding.navView.setNavigationItemSelectedListener(this)
+
+        FirestoreClass().signInUser(this)
+    }
+
+    fun updateNavigationUserDetails(user: User) {
+        // nav_header_main.xml을 어떻게 뷰 바인딩 시켜줄 지 모르겠어서 객체 잡아서 넣음
+        (_binding.navView.getHeaderView(0) as LinearLayout).apply {
+            (getChildAt(0) as CircleImageView).also {
+                Glide
+                    .with(this@MainActivity)
+                    .load(user.image)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_user_place_holder)
+                    .into(it);
+            }
+            (getChildAt(1) as TextView).also {
+                it.text = user.name
+            }
+        }
     }
 
     private fun setupActionBar() {
