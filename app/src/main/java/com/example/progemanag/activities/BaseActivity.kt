@@ -72,7 +72,7 @@ open class BaseActivity : AppCompatActivity() {
     /**
      * 두 번 연속 백 버튼을 눌렀을 때 뒤로가기 허용
      */
-    fun doubleBackToExit(){
+    private fun doubleBackToExit(){
         if(doubleBackToExitPressedOnce){
             super.onBackPressed()
             return
