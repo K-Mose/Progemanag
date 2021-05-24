@@ -2,18 +2,14 @@ package com.example.progemanag.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
-import androidx.core.view.get
 import com.bumptech.glide.Glide
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityMainBinding
-import com.example.progemanag.databinding.NavHeaderMainBinding
 import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.User
 import com.google.android.material.navigation.NavigationView
@@ -30,7 +26,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         _binding.navView.setNavigationItemSelectedListener(this)
 
-        FirestoreClass().signInUser(this)
+        FirestoreClass().loadUserData(this)
     }
 
     fun updateNavigationUserDetails(user: User) {
@@ -84,8 +80,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_my_profile -> {
-                Toast.makeText(this@MainActivity,
-                "My Profile", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this@MainActivity, MyProfileActivity::class.java))
             }
             R.id.nav_sign_out -> {
                 FirebaseAuth.getInstance().signOut()

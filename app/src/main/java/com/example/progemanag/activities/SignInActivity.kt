@@ -42,7 +42,7 @@ class SignInActivity : BaseActivity() {
                     .addOnCompleteListener {  task ->
                         if(task.isSuccessful) {
                             Log.d("Sign in :", "signInWithEmail:success")
-                            FirestoreClass().signInUser(this)
+                            FirestoreClass().loadUserData(this)
                         } else {
                             Log.w("Sign in :", "signInWithEmail:failure", task.exception)
                             Toast.makeText(baseContext, "Authentication failed.",

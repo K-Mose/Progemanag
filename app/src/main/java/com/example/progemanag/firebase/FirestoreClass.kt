@@ -2,10 +2,7 @@ package com.example.progemanag.firebase
 
 import android.app.Activity
 import android.util.Log
-import com.example.progemanag.activities.BaseActivity
-import com.example.progemanag.activities.MainActivity
-import com.example.progemanag.activities.SignInActivity
-import com.example.progemanag.activities.SignUpActivity
+import com.example.progemanag.activities.*
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -41,7 +38,7 @@ class FirestoreClass {
     }
 
     // Sign In
-    fun signInUser(activity: Activity){
+    fun loadUserData(activity: Activity){
         mFireStore.collection(Constants.USER)
                 .document(getCurrentUserID())
                 .get()
@@ -55,12 +52,16 @@ class FirestoreClass {
                             is MainActivity -> {
                                 activity.updateNavigationUserDetails(it)
                             }
+                            is MyProfileActivity -> {
+                                activity.setUserDataInUI(it)
+                            }
                         }
                     }
                 }.addOnFailureListener { e->
                     Log.e("SigInUser", "Error writing document", e)
                 }
     }
+
     fun getCurrentUserID(): String {
         var currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
