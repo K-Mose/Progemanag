@@ -35,7 +35,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     fun updateNavigationUserDetails(user: User) {
         // nav_header_main.xml을 어떻게 뷰 바인딩 시켜줄 지 모르겠어서 객체 잡아서 넣음
-        (_binding.navView.getHeaderView(0) as LinearLayout).apply {
+        val ll = (_binding.navView.getHeaderView(0) as LinearLayout).apply {
             (getChildAt(0) as CircleImageView).also {
                 Glide
                     .with(this@MainActivity)
