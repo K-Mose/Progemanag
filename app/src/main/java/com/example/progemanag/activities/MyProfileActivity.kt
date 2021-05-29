@@ -19,6 +19,7 @@ import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityMyProfileBinding
 import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.User
+import com.example.progemanag.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.lang.Exception
@@ -32,6 +33,7 @@ class MyProfileActivity : BaseActivity() {
     }
 
     private var mSelectedImageFileUri: Uri? = null
+    private lateinit var mUserDetail: User
     private var mProfileImageUrl: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +57,11 @@ class MyProfileActivity : BaseActivity() {
                 }
             }
             btnUpdate.setOnClickListener {
-                uploadUserImage()
+                if (mSelectedImageFileUri != null ) uploadUserImage()
+                else {
+                    showProgressDialog(resources.getString(R.string.please_wait))
+                    updateUserProfileData()
+                }
             }
         }
     }
@@ -113,6 +119,8 @@ class MyProfileActivity : BaseActivity() {
     }
 
     fun setUserDataInUI(user: User) {
+        // 유져 UI 업데이트 시 mUserDetail 할당
+        mUserDetail = user
         _binding.apply {
             Glide
                 .with(this@MyProfileActivity)
@@ -128,6 +136,30 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
+    // HashMap 생성 후 변경 데이터 업데이트
+    private fun updateUserProfileData() {
+        // Preparing HashMap & change Observer
+        val userHashMap = HashMap<String, Any>()
+        var anyChangesMade = false
+        // Set Variables
+        // 각각의 값을 확인 할 수 있도록 여러 if문으로 작성
+        if (mProfileImageUrl.isNotEmpty() && mProfileImageUrl != mUserDetail.image) {
+            userHashMap[Constants.IMAGE] = mProfileImageUrl
+            anyChangesMade = true
+        }
+        if (_binding.etName.text.toString() != mUserDetail.name) {
+            userHashMap[Constants.NAME] = _binding.etName.text.toString()
+            anyChangesMade = true
+        }
+        if (_binding.etMobile.text.toString() != mUserDetail.mobile.toString()) {
+            userHashMap[Constants.MOBILE] = _binding.etMobile.text.toString().toLong()
+            anyChangesMade = true
+        }
+
+        if (anyChangesMade) FirestoreClass().updateUserProfileData(this, userHashMap)
+        else hideProgressDialog()
+    }
+
     private fun uploadUserImage() {
         showProgressDialog(resources.getString(R.string.please_wait))
         if(mSelectedImageFileUri != null) {
@@ -140,8 +172,7 @@ class MyProfileActivity : BaseActivity() {
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                     Log.e("Downloadable Image URL", uri.toString())
                     mProfileImageUrl = uri.toString()
-
-                    //TODO update user profile data
+                    updateUserProfileData()
                 }
             }.addOnFailureListener { exception ->
                 Toast.makeText(this@MyProfileActivity, exception.message, Toast.LENGTH_LONG).show()
@@ -150,8 +181,14 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
+    // 확장자 받아오는 함수
     private fun getFileExtension(uri: Uri?): String? {
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!))
+    }
+
+    fun profileUpdateSuccess() {
+        hideProgressDialog()
+        finish()
     }
 
 }

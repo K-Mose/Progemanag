@@ -2,6 +2,7 @@ package com.example.progemanag.firebase
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import com.example.progemanag.activities.*
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
@@ -34,6 +35,23 @@ class FirestoreClass {
                     activity.userRegisteredSuccess()
                 }.addOnFailureListener { e ->
                     Log.e(activity.javaClass.simpleName,"Error writing documentation", e)
+                }
+    }
+
+    // Firebase에  Key-Value 형식의 데이터로 업이트.
+    fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
+        mFireStore.collection(Constants.USER)
+                .document(getCurrentUserID())
+                .update(userHashMap)
+                .addOnSuccessListener {
+                    Log.i(activity.javaClass.simpleName, "Profile Data updated Successfully!")
+                    Toast.makeText(activity, "Profile Data updated Successfully!", Toast.LENGTH_SHORT).show()
+                    activity.profileUpdateSuccess()
+                }.addOnFailureListener { e ->
+                    activity.hideProgressDialog()
+                    Log.e(activity.javaClass.simpleName,
+                    "Error while creating a board.", e)
+                    Toast.makeText(activity, "Error when profile update", Toast.LENGTH_SHORT).show()
                 }
     }
 
