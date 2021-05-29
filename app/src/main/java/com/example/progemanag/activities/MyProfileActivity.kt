@@ -188,6 +188,8 @@ class MyProfileActivity : BaseActivity() {
 
     fun profileUpdateSuccess() {
         hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        Log.e("Finish", "${this.localClassName} || ${this.javaClass.simpleName}")
         finish()
     }
 
