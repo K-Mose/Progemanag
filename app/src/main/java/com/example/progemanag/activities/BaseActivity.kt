@@ -105,4 +105,7 @@ open class BaseActivity : AppCompatActivity() {
     override fun onBackPressed() {
         doubleBackToExit()
     }
+    fun superOnBackPressed() {
+        super.onBackPressed()
+    }
 }

@@ -22,4 +22,14 @@
         android:id="@+id/ly_main_content"
         layout="@layout/main_content"/>
 
+    <!-- FloatingActionButton -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_creating_board"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:backgroundTint="@color/colorAccent"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_vector_add_24dp" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

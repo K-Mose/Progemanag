@@ -4,6 +4,7 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import com.example.progemanag.activities.*
+import com.example.progemanag.models.Board
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -21,13 +22,17 @@ import com.google.firebase.firestore.SetOptions
  * https://firebase.google.com/docs/firestore/data-model
  * https://firebase.google.com/docs/firestore/manage-data/structure-data
  *
+ *
+ * Firestore 클래스를 따로 만드는 이유
+ * 나중에 Firestore를 쓰지 않을 수 있어서 Model을 통해 쉽게 옮길 수 있음.
+ * Firestore에 너무 의존해서 작성을 하면 나중에 코드를 싹 갈아 엎어야 함.
  */
 class FirestoreClass {
 
     private val mFireStore = FirebaseFirestore.getInstance()
 
     // Firestore에 컬렉션 등록
-    fun registerUser(activity: SignUpActivity, userInfo: User){
+    fun registerUser(activity: SignUpActivity, userInfo: User) {
         mFireStore.collection(Constants.USER) // 컬렉션 생성
                 .document(getCurrentUserID()) // 문서의 식별자를 uuid로 설정
                 .set(userInfo, SetOptions.merge()) // 단일 문서를 만들거나 덮어쓰기 위해 set() 사용, 기존 문서가 있다면 merge()
@@ -35,6 +40,21 @@ class FirestoreClass {
                     activity.userRegisteredSuccess()
                 }.addOnFailureListener { e ->
                     Log.e(activity.javaClass.simpleName,"Error writing documentation", e)
+                }
+    }
+
+    fun registerBoard(activity: CreateBoardActivity, board: Board) {
+        mFireStore.collection(Constants.BOARDS)
+                .document()
+                .set(board, SetOptions.merge())
+                .addOnSuccessListener {
+                    Log.e(activity.javaClass.simpleName, "Board created successfully")
+                    Toast.makeText(activity, "Board created successfully.", Toast.LENGTH_SHORT).show()
+                    activity.boardCreatedSuccessfully()
+                }.addOnFailureListener {
+                    exception ->
+                    activity.hideProgressDialog()
+                    Log.e(activity.javaClass.simpleName, "Error while creating a board.", exception)
                 }
     }
 

@@ -14,6 +14,7 @@ import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityMainBinding
 import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.User
+import com.example.progemanag.utils.Constants
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
@@ -24,6 +25,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         const val MY_PROFILE_REQUEST_CODE: Int = 11
     }
 
+    private lateinit var mUserNane: String
+
     private lateinit var _binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +34,21 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setContentView(_binding.root)
         setupActionBar()
 
-        _binding.navView.setNavigationItemSelectedListener(this)
+        _binding.apply {
+            navView.setNavigationItemSelectedListener(this@MainActivity)
+            lyAppBarMain.fabCreatingBoard.setOnClickListener {
+                startActivity(
+                        Intent(this@MainActivity, CreateBoardActivity::class.java)
+                                .putExtra(Constants.NAME, mUserNane)
+                )
+            }
+        }
 
         FirestoreClass().loadUserData(this)
     }
 
     fun updateNavigationUserDetails(user: User) {
+        mUserNane = user.name
         // nav_header_main.xml을 어떻게 뷰 바인딩 시켜줄 지 모르겠어서 객체 잡아서 넣음
         val ll = (_binding.navView.getHeaderView(0) as LinearLayout).apply {
             (getChildAt(0) as CircleImageView).also {
