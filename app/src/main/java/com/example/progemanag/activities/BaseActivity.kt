@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
  *
  */
 open class BaseActivity : AppCompatActivity() {
+
     private lateinit var _typeFace: Typeface
     val typeFace get() = _typeFace
     lateinit var binding: ActivityBaseBinding

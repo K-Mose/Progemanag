@@ -5,14 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.progemanag.R
+import com.example.progemanag.adapters.BoardItemsAdapter
 import com.example.progemanag.databinding.ActivityMainBinding
 import com.example.progemanag.firebase.FirestoreClass
+import com.example.progemanag.models.Board
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
 import com.google.android.material.navigation.NavigationView
@@ -23,6 +27,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11
+        const val CREATE_BOARD_REQUEST_CODE: Int = 22
     }
 
     private lateinit var mUserNane: String
@@ -37,17 +42,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         _binding.apply {
             navView.setNavigationItemSelectedListener(this@MainActivity)
             lyAppBarMain.fabCreatingBoard.setOnClickListener {
-                startActivity(
+                startActivityForResult(
                         Intent(this@MainActivity, CreateBoardActivity::class.java)
-                                .putExtra(Constants.NAME, mUserNane)
+                                .putExtra(Constants.NAME, mUserNane),
+                        CREATE_BOARD_REQUEST_CODE
                 )
             }
         }
 
-        FirestoreClass().loadUserData(this)
+        FirestoreClass().loadUserData(this, true)
     }
 
-    fun updateNavigationUserDetails(user: User) {
+    fun updateNavigationUserDetails(user: User, readBoardsList: Boolean) {
         mUserNane = user.name
         // nav_header_main.xml을 어떻게 뷰 바인딩 시켜줄 지 모르겠어서 객체 잡아서 넣음
         val ll = (_binding.navView.getHeaderView(0) as LinearLayout).apply {
@@ -61,6 +67,30 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             (getChildAt(1) as TextView).also {
                 it.text = user.name
+            }
+        }
+        if (readBoardsList) {
+           showProgressDialog(resources.getString(R.string.please_wait))
+            FirestoreClass().getBoardsList(this)
+        }
+    }
+
+    fun populateBoardsListToUI(boardsList: ArrayList<Board>) {
+        hideProgressDialog()
+
+        _binding.lyAppBarMain.lyMainContent.apply {
+            if (boardsList.size > 0) {
+                tvNoBoardsAvailable.visibility = View.GONE
+//                val adapter = BoardItemsAdapter(this@MainActivity, boardsList)
+                rvBoardsList.apply {
+                    visibility = View.VISIBLE
+                    layoutManager = LinearLayoutManager(this@MainActivity)
+                    setHasFixedSize(true)
+                    adapter = BoardItemsAdapter(this@MainActivity, boardsList)
+                }
+            } else {
+                rvBoardsList.visibility = View.GONE
+                tvNoBoardsAvailable.visibility = View.VISIBLE
             }
         }
     }
@@ -104,6 +134,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         } else {
             Log.e("Cancelled", "Cancelled")
         }
+        if (resultCode == Activity.RESULT_OK && requestCode ==  CREATE_BOARD_REQUEST_CODE) {
+            FirestoreClass().loadUserData(this, true)
+        }
+
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
