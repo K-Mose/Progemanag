@@ -2,10 +2,13 @@ package com.example.progemanag.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.progemanag.R
+import com.example.progemanag.adapters.TaskListItemsAdapter
 import com.example.progemanag.databinding.ActivityTaskListBinding
 import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.Board
+import com.example.progemanag.models.Task
 import com.example.progemanag.utils.Constants
 
 class TaskListActivity : BaseActivity() {
@@ -27,6 +30,18 @@ class TaskListActivity : BaseActivity() {
     fun boardDetails(board: Board) {
         hideProgressDialog()
         setupActionbar(board.name)
+
+        val addTaskList = Task(resources.getString(R.string.add_list))
+        board.taskList.add(addTaskList)
+
+        val adapter = TaskListItemsAdapter(this, board.taskList)
+        _binding.rvTaskList.apply {
+            layoutManager = LinearLayoutManager(this@TaskListActivity, LinearLayoutManager.HORIZONTAL, false)
+            setHasFixedSize(true)
+            this.adapter = adapter
+        }
+
+
     }
 
     private fun setupActionbar(title: String) {
