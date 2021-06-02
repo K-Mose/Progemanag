@@ -58,6 +58,18 @@ class FirestoreClass {
                 }
     }
 
+    fun getBoardDetails(activity: TaskListActivity, documentId: String) {
+        mFireStore.collection(Constants.BOARDS)
+            .document(documentId)
+            .get()
+            .addOnSuccessListener { document ->
+                Log.i(activity.javaClass.simpleName, document.toString())
+                activity.boardDetails(document.toObject(Board::class.java)!!)
+            }.addOnFailureListener {
+                activity.hideProgressDialog()
+            }
+    }
+
     // Firebase에  Key-Value 형식의 데이터로 업이트.
     fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
         mFireStore.collection(Constants.USER)

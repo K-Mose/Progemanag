@@ -86,7 +86,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     visibility = View.VISIBLE
                     layoutManager = LinearLayoutManager(this@MainActivity)
                     setHasFixedSize(true)
-                    adapter = BoardItemsAdapter(this@MainActivity, boardsList)
+                    adapter = BoardItemsAdapter(this@MainActivity, boardsList).apply {
+                        setOnclickListener(object: BoardItemsAdapter.OnClickListener{
+                            override fun onClick(position: Int, model: Board) {
+                                startActivity(
+                                    Intent(this@MainActivity, TaskListActivity::class.java)
+                                        .putExtra(Constants.DOCUMENT_ID, model.documentId)
+                                )
+                            }
+                        })
+                    }
                 }
             } else {
                 rvBoardsList.visibility = View.GONE
@@ -131,12 +140,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
             FirestoreClass().loadUserData(this)
+        } else if (resultCode == Activity.RESULT_OK && requestCode ==  CREATE_BOARD_REQUEST_CODE) {
+            FirestoreClass().loadUserData(this)
         } else {
             Log.e("Cancelled", "Cancelled")
         }
-        if (resultCode == Activity.RESULT_OK && requestCode ==  CREATE_BOARD_REQUEST_CODE) {
-            FirestoreClass().loadUserData(this, true)
-        }
+
 
     }
 
