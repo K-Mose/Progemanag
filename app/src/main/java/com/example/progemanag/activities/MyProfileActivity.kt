@@ -12,6 +12,7 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -42,7 +43,7 @@ class MyProfileActivity : BaseActivity() {
             ivMyProfile.setOnClickListener {
                 if(ContextCompat.checkSelfPermission(this@MyProfileActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                    Constants.showImageChooser(this@MyProfileActivity)
+                    Constants.showImageChooser(imageResult)
                 } else {
                     ActivityCompat.requestPermissions(
                             this@MyProfileActivity,
@@ -65,13 +66,29 @@ class MyProfileActivity : BaseActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == Constants.READ_STORAGE_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Constants.showImageChooser(this)
+                Constants.showImageChooser(imageResult)
             } else {
                 Toast.makeText(
                         this@MyProfileActivity,
                         "Oops, you just denied the permission for storage.",
                         Toast.LENGTH_LONG
                 ).show()
+            }
+        }
+    }
+
+    private val imageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data!!.data != null) {
+            mSelectedImageFileUri = result.data!!.data
+            try {
+                Glide
+                        .with(this@MyProfileActivity)
+                        .load(mSelectedImageFileUri)
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_user_place_holder)
+                        .into(_binding.ivMyProfile)
+            } catch (e: Exception){
+                e.printStackTrace()
             }
         }
     }

@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -46,7 +47,7 @@ class CreateBoardActivity : BaseActivity() {
             ivBoardImage.setOnClickListener {
                 if(ContextCompat.checkSelfPermission(this@CreateBoardActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
                         == PackageManager.PERMISSION_GRANTED) {
-                    Constants.showImageChooser(this@CreateBoardActivity)
+                    Constants.showImageChooser(imageResult)
                 } else {
                     ActivityCompat.requestPermissions(
                             this@CreateBoardActivity,
@@ -74,8 +75,7 @@ class CreateBoardActivity : BaseActivity() {
                 _binding.etBoardName.text.toString(),
                 mBoardImageUrl,
                 mUserName,
-                assignedUserArrayList
-        )
+                assignedUserArrayList)
         FirestoreClass().createBoard(this, board)
     }
 
@@ -120,12 +120,10 @@ class CreateBoardActivity : BaseActivity() {
         }
 
     }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE
-                && data!!.data != null) {
-            mSelectedImageFileUri = data.data
 
+    private val imageResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data!!.data != null) {
+            mSelectedImageFileUri = result.data!!.data
             try {
                 Glide
                         .with(this@CreateBoardActivity)
@@ -138,5 +136,4 @@ class CreateBoardActivity : BaseActivity() {
             }
         }
     }
-
 }

@@ -8,7 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -33,20 +33,30 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var mUserNane: String
 
     private lateinit var _binding: ActivityMainBinding
+
+    // https://stackoverflow.com/a/63654043
+    // 1 requst당 1 액티비티만 실행, ActivityResultCallback 객체를 리턴. 같은 값 실행하면 재사용 가능함
+    // ActivityResultContract / Contract종류 https://developer.android.com/reference/androidx/activity/result/contract/ActivityResultContract#expandable-1
+    private val dataReload = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // RequestCode가 필요 없어짐
+        if (result.resultCode == Activity.RESULT_OK) {
+            FirestoreClass().loadUserData(this)
+        } else {
+            Log.e("Cancelled", "Cancelled")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(_binding.root)
         setupActionBar()
-
+        // Load Data
+        showProgressDialog(resources.getString(R.string.please_wait))
         _binding.apply {
             navView.setNavigationItemSelectedListener(this@MainActivity)
             lyAppBarMain.fabCreatingBoard.setOnClickListener {
-                startActivityForResult(
-                        Intent(this@MainActivity, CreateBoardActivity::class.java)
-                                .putExtra(Constants.NAME, mUserNane),
-                        CREATE_BOARD_REQUEST_CODE
-                )
+                dataReload.launch(Intent(this@MainActivity, CreateBoardActivity::class.java))
             }
         }
 
@@ -135,25 +145,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    // Change to registerForActivityResult
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
-            FirestoreClass().loadUserData(this)
-        } else if (resultCode == Activity.RESULT_OK && requestCode ==  CREATE_BOARD_REQUEST_CODE) {
-            FirestoreClass().loadUserData(this)
-        } else {
-            Log.e("Cancelled", "Cancelled")
-        }
-
-
-    }
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_my_profile -> {
-                //TODO Change startActivityForResult to registerForActivityResult
-                startActivityForResult(Intent(this@MainActivity, MyProfileActivity::class.java), MainActivity.MY_PROFILE_REQUEST_CODE)
+                dataReload.launch(Intent(this@MainActivity, MyProfileActivity::class.java))
             }
             R.id.nav_sign_out -> {
                 FirebaseAuth.getInstance().signOut()

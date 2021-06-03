@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 
 object Constants {
 
@@ -22,10 +24,11 @@ object Constants {
     const val PICK_IMAGE_REQUEST_CODE = 2
 
     const val DOCUMENT_ID: String = "documentId"
+    const val TASK_LIST: String = "taskList"
 
-    fun showImageChooser(activity: Activity) {
+    fun showImageChooser(register: ActivityResultLauncher<Intent>) {
         var galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        activity.startActivityForResult(galleryIntent, PICK_IMAGE_REQUEST_CODE)
+        register.launch(galleryIntent)
     }
 
     // 확장자 받아오는 함수
