@@ -1,12 +1,15 @@
 package com.example.progemanag.adapters
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.progemanag.activities.TaskListActivity
 import com.example.progemanag.databinding.ItemTaskBinding
 import com.example.progemanag.models.Task
 
@@ -30,21 +33,87 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = list[position]
         if (holder is MyViewHolder) {
-            if (position == list.size - 1) {
-                binding.tvAddTaskList.visibility = View.VISIBLE
-                binding.llTaskItem.visibility = View.GONE
-            } else {
-                binding.tvAddTaskList.visibility = View.GONE
-                binding.llTaskItem.visibility = View.VISIBLE
+            holder.binding.apply {
+                if (position == list.size - 1) {
+                    tvAddTaskList.visibility = View.VISIBLE
+                    llTaskItem.visibility = View.GONE
+                } else {
+                    binding.tvAddTaskList.visibility = View.GONE
+                    binding.llTaskItem.visibility = View.VISIBLE
+                }
+                tvTaskListTitle.text = model.title
+                // Add Task Name
+                tvAddTaskList.setOnClickListener {
+                    tvAddTaskList.visibility = View.GONE
+                    cvAddTaskListName.visibility = View.VISIBLE
+                }
+                ibCloseListName.setOnClickListener {
+                    tvAddTaskList.visibility = View.VISIBLE
+                    cvAddTaskListName.visibility = View.GONE
+                }
+                ibDoneListName.setOnClickListener {
+                    val listName = etTaskListName.text.toString()
+
+                    if(listName.isNotEmpty()) {
+                        if (context is TaskListActivity) {
+                            context.createTaskList(listName)
+                        }
+                    }
+                }
+
+                // Edit Task Name
+                ibEditListName.setOnClickListener {
+                    etEditTaskListName.setText(model.title)
+                    llTitleView.visibility = View.GONE
+                    cvEditTaskListName.visibility = View.VISIBLE
+                }
+                ibCloseEditableView.setOnClickListener {
+                    llTitleView.visibility = View.VISIBLE
+                    cvEditTaskListName.visibility = View.GONE
+                }
+                ibDoneEditListName.setOnClickListener {
+                    val listName = etTaskListName.text.toString()
+
+                    if(listName.isNotEmpty()) {
+                        if (context is TaskListActivity){
+                            context.updateTaskList(position, listName, model)
+                        } else {
+                            Toast.makeText(context, "Please Enter a List Name", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                ibDeleteList.setOnClickListener {
+                    alterDialogForDelete(position, model.title)
+                }
+
             }
         }
+    }
+
+    // Alert Dialog
+    private fun alterDialogForDelete(position: Int, title: String) {
+        val alertDialog: AlertDialog = AlertDialog.Builder(context)
+                .setTitle("Alert")
+                .setMessage("Are you sure you want to delete $title")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("Yes") { dialog, which ->
+                    dialog.dismiss()
+                    if (context is TaskListActivity) {
+                        context.deleteTaskList(position)
+                    }
+                }.setNegativeButton("No") { dialog, which ->
+                    dialog.dismiss()
+                }.create()
+        alertDialog.setCancelable(false)
+        alertDialog.show()
     }
 
     // dp from px & px from dp
     private fun Int.toDp(): Int = (this/ Resources.getSystem().displayMetrics.density).toInt()
     private fun Int.toPx(): Int = (this* Resources.getSystem().displayMetrics.density).toInt()
 
-    class MyViewHolder(binding: ItemTaskBinding): RecyclerView.ViewHolder(binding.root) {
+    class MyViewHolder(val binding: ItemTaskBinding): RecyclerView.ViewHolder(binding.root) {
 
     }
 }

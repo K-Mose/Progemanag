@@ -109,4 +109,9 @@ open class BaseActivity : AppCompatActivity() {
     fun superOnBackPressed() {
         super.onBackPressed()
     }
+
+    /**
+     * ResultActivities
+     *
+     */
 }

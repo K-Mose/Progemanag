@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class Task (
-    var title: String,
+    var title: String = "",
     var createdBy: String = ""
 ): Parcelable {
     constructor(parcel: Parcel) : this(
