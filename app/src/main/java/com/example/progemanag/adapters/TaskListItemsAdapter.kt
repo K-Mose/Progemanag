@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.progemanag.activities.TaskListActivity
 import com.example.progemanag.databinding.ItemTaskBinding
@@ -72,7 +73,7 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
                     cvEditTaskListName.visibility = View.GONE
                 }
                 ibDoneEditListName.setOnClickListener {
-                    val listName = etTaskListName.text.toString()
+                    val listName = etEditTaskListName.text.toString()
 
                     if(listName.isNotEmpty()) {
                         if (context is TaskListActivity){
@@ -82,9 +83,37 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
                         }
                     }
                 }
-
                 ibDeleteList.setOnClickListener {
                     alterDialogForDelete(position, model.title)
+                }
+
+                // Add Card
+                tvAddCard.setOnClickListener {
+                    tvAddCard.visibility = View.GONE
+                    cvAddCard.visibility = View.VISIBLE
+                }
+                ibCloseCardName.setOnClickListener{
+                    tvAddCard.visibility = View.VISIBLE
+                    cvAddCard.visibility = View.GONE
+                }
+                ibDoneCardName.setOnClickListener{
+                    etCardName.text.toString().also {
+                        if (it.isNotEmpty()) {
+                            if (context is TaskListActivity) {
+                                context.createCard(position, it)
+                            }
+                        } else {
+                            Toast.makeText(context, "Please Enter a Card Name", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    tvAddCard.visibility = View.VISIBLE
+                    cvAddCard.visibility = View.GONE
+                }
+                val adapter = CardListItemsAdapter(context, model.cardList)
+                rvCardList.apply {
+                    layoutManager = LinearLayoutManager(context)
+                    setHasFixedSize(true)
+                    this.adapter = adapter
                 }
 
             }

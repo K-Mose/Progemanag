@@ -8,6 +8,7 @@ import com.example.progemanag.adapters.TaskListItemsAdapter
 import com.example.progemanag.databinding.ActivityTaskListBinding
 import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.Board
+import com.example.progemanag.models.Card
 import com.example.progemanag.models.Task
 import com.example.progemanag.utils.Constants
 
@@ -78,6 +79,27 @@ class TaskListActivity : BaseActivity() {
 
         showProgressDialog(resources.getString(R.string.please_wait))
 
+        FirestoreClass().addUpdateTaskList(this, mBoardDetails)
+    }
+
+    fun createCard(position: Int, name: String) {
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
+        val cardAssignedUserList: ArrayList<String> = ArrayList()
+        cardAssignedUserList.add(FirestoreClass().getCurrentUserID())
+
+        val card = Card(name, FirestoreClass().getCurrentUserID(), cardAssignedUserList)
+        mBoardDetails.taskList[position].cardList.add(card)
+        // replcae old task with new task
+//        val cardList = mBoardDetails.taskList[position].cardList
+//        cardList.add(card)
+//        // 개별적으로 업데이트 할 필요 없이
+//        val task = Task(
+//                mBoardDetails.taskList[position].title,
+//                mBoardDetails.taskList[position].createdBy,
+//                cardList
+//        )
+//        mBoardDetails.taskList[position] = task
+        showProgressDialog(resources.getString(R.string.please_wait))
         FirestoreClass().addUpdateTaskList(this, mBoardDetails)
     }
 
