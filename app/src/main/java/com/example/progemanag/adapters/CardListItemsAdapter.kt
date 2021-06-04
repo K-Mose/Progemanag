@@ -25,7 +25,12 @@ open class CardListItemsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-
+        val model = list[position]
+        if (holder is MyViewHolder) {
+            holder.binding.apply {
+                tvCardName.text = model.name
+            }
+        }
     }
 
     class MyViewHolder(val binding: ItemCardBinding) : RecyclerView.ViewHolder(binding.root)

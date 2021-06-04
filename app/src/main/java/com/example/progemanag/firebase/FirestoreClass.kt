@@ -154,6 +154,27 @@ class FirestoreClass {
                 }
     }
 
+    fun getAssignedMembersListDetails(activity: MembersActivity, assignedTo: ArrayList<String>) {
+        mFireStore
+            .collection(Constants.USER)
+            .whereIn(Constants.ID, assignedTo)
+            .get()
+            .addOnSuccessListener { document ->
+                Log.e(activity.javaClass.simpleName, document.documents.toString())
+                val userList: ArrayList<User> = ArrayList()
+                for( i in document.documents) {
+                    val user = i.toObject(User::class.java)!!
+                    userList.add(user)
+                }
+                activity.setupMemberList(userList)
+            }.addOnFailureListener { e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName,
+                "Error while getting members.",
+                e)
+            }
+    }
+
     fun getCurrentUserID(): String {
         var currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
