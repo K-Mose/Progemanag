@@ -47,4 +47,10 @@
 
     <!-- Item Card -->
     <string name="members">Members</string>
+
+    <!-- Member Menu -->
+    <string name="add_member">Add Member</string>
+    <string name="cancel">CANCEL</string>
+    <string name="add">ADD</string>
+    <string name="search_member">Search Member</string>
 </resources>
