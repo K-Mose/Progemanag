@@ -55,7 +55,7 @@
                 android:layout_marginTop="@dimen/member_dialog_action_layout_marginTop"
                 android:orientation="horizontal">
 
-                <TextView
+                @<TextView
                     android:id="@+id/tv_add"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"

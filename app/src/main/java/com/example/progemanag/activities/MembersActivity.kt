@@ -21,6 +21,7 @@ class MembersActivity : BaseActivity() {
     private lateinit var _binding: ActivityMembersBinding
 
     private lateinit var mBoardDetails: Board
+    private lateinit var mAssignedMembersList: ArrayList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +40,7 @@ class MembersActivity : BaseActivity() {
     }
 
     fun setupMemberList(list: ArrayList<User>) {
+        mAssignedMembersList = list
         hideProgressDialog()
 
         _binding.rvMembersList.apply {
@@ -66,16 +68,17 @@ class MembersActivity : BaseActivity() {
 
     private fun dialogSearchMember() {
         val dialog = Dialog(this)
-        dialog.setContentView(R.layout.dialog_search_member)
         val dialogBinding = DialogSearchMemberBinding.inflate(LayoutInflater.from(this))
+        dialog.setContentView(dialogBinding.root)
         dialogBinding.apply {
             tvAdd.setOnClickListener {
                 val email = etEmailSearchMember.text.toString()
                 if(email.isNotEmpty()) {
                     dialog.dismiss()
-                    // TODO implement adding memeber logic
+                    showProgressDialog(resources.getString(R.string.please_wait))
+                    FirestoreClass().getMemberDetails(this@MembersActivity, email)
                 } else {
-
+                    showErrorSnackBar("Please enter members email address.")
                 }
             }
             tvCancel.setOnClickListener {
@@ -84,6 +87,17 @@ class MembersActivity : BaseActivity() {
         }
         dialog.show()
 
+    }
+
+    fun memberDetail(user: User) {
+        mBoardDetails.assignedBy.add(user.id)
+        FirestoreClass().assignMemberToBoard(this, mBoardDetails, user)
+    }
+
+    fun memberAssignSuccess(user: User) {
+        hideProgressDialog()
+        mAssignedMembersList.add(user)
+        setupMemberList(mAssignedMembersList)
     }
 
     private fun setupActionbar() {
