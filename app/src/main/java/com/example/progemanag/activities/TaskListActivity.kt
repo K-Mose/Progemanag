@@ -1,10 +1,13 @@
 package com.example.progemanag.activities
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.progemanag.R
 import com.example.progemanag.adapters.TaskListItemsAdapter
@@ -19,18 +22,27 @@ class TaskListActivity : BaseActivity() {
     private lateinit var _binding: ActivityTaskListBinding
 
     private lateinit var mBoardDetails: Board
+    private lateinit var mBoardDocumentId: String
+    private val membersRegister = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            showProgressDialog(resources.getString(R.string.please_wait))
+            FirestoreClass().getBoardDetails(this, mBoardDocumentId)
+        } else {
+           Log.e("Cancelled", "Cancelled")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityTaskListBinding.inflate(layoutInflater)
         setContentView(_binding.root)
 
-        var boardDocumentId = ""
         if (intent.hasExtra(Constants.DOCUMENT_ID)) {
-            boardDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID)!!
+            mBoardDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID)!!
         }
 
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().getBoardDetails(this, boardDocumentId)
+        FirestoreClass().getBoardDetails(this, mBoardDocumentId)
     }
 
     fun boardDetails(board: Board) {
@@ -114,10 +126,9 @@ class TaskListActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.action_members -> {
-                startActivity(
-                    Intent(this, MembersActivity::class.java)
-                        .putExtra(Constants.BOARD_DETAIL, mBoardDetails)
-                )
+                membersRegister.launch(
+                        Intent(this, MembersActivity::class.java)
+                        .putExtra(Constants.BOARD_DETAIL, mBoardDetails))
             }
         }
         return super.onOptionsItemSelected(item)
@@ -134,4 +145,5 @@ class TaskListActivity : BaseActivity() {
             }
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package com.example.progemanag.activities
 
+import android.app.Activity
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +23,8 @@ class MembersActivity : BaseActivity() {
 
     private lateinit var mBoardDetails: Board
     private lateinit var mAssignedMembersList: ArrayList<User>
+
+    private var anyChangesMade = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +100,15 @@ class MembersActivity : BaseActivity() {
     fun memberAssignSuccess(user: User) {
         hideProgressDialog()
         mAssignedMembersList.add(user)
+        anyChangesMade = true
         setupMemberList(mAssignedMembersList)
+    }
+
+    private fun thisOnBackPressed() {
+        if (anyChangesMade) {
+            setResult(Activity.RESULT_OK)
+        }
+        super.superOnBackPressed()
     }
 
     private fun setupActionbar() {
@@ -107,7 +118,7 @@ class MembersActivity : BaseActivity() {
             setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
             title = resources.getString(R.string.members)
             _binding.toolbarMembersActivity.setNavigationOnClickListener {
-                superOnBackPressed()
+                thisOnBackPressed()
             }
         }
     }
