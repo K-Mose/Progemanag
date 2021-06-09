@@ -107,7 +107,7 @@ class TaskListActivity : BaseActivity() {
         // replcae old task with new task
 //        val cardList = mBoardDetails.taskList[position].cardList
 //        cardList.add(card)
-//        // 개별적으로 업데이트 할 필요 없이
+//        // 개별적으로 업데이트 할 필요 없이 Board 통체로 업데이트
 //        val task = Task(
 //                mBoardDetails.taskList[position].title,
 //                mBoardDetails.taskList[position].createdBy,
@@ -119,7 +119,7 @@ class TaskListActivity : BaseActivity() {
     }
 
     fun cardDetails(taskListPosition: Int, cardPosition: Int) {
-        startActivity(
+        membersRegister.launch(
             Intent(this@TaskListActivity, CardDetailsActivity::class.java)
             .putExtra(Constants.BOARD_DETAIL, mBoardDetails)
             .putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)

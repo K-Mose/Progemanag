@@ -1,9 +1,18 @@
 package com.example.progemanag.activities
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityCardDetailsBinding
+import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.Board
+import com.example.progemanag.models.Card
+import com.example.progemanag.models.Task
 import com.example.progemanag.utils.Constants
 
 class CardDetailsActivity : BaseActivity() {
@@ -19,6 +28,25 @@ class CardDetailsActivity : BaseActivity() {
         setContentView(_binding.root)
         getIntentData()
         setupActionBar()
+        Log.e("onCreated:: ", "${mBoardDetails.taskList}")
+
+        _binding.apply {
+            mBoardDetails
+                .taskList[mTaskListPosition]
+                .cardList[mCardPosition]
+                .also {
+                    etNameCardDetails.setText(it.name)
+                    etNameCardDetails.setSelection(it.name.length)
+                }
+         btnUpdateCardDetails.setOnClickListener {
+                if (etNameCardDetails.text.toString().isNotEmpty()) {
+                    updateCardDetails()
+                } else {
+                    Toast.makeText(this@CardDetailsActivity,
+                    "Enter a Card Name", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun getIntentData() {
@@ -32,6 +60,69 @@ class CardDetailsActivity : BaseActivity() {
             mCardPosition = intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1)
         }
 
+    }
+
+    fun addUpdateTaskListSuccess() {
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+
+    private fun updateCardDetails() {
+        val card = Card(
+            _binding.etNameCardDetails.text.toString(),
+            mBoardDetails.taskList[mTaskListPosition].cardList[mCardPosition].createdBy,
+            mBoardDetails.taskList[mTaskListPosition].cardList[mCardPosition].assignedTo
+        )
+
+        mBoardDetails.taskList[mTaskListPosition].cardList[mCardPosition] = card
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
+    }
+
+    private fun deleteCard() {
+        val cardList = mBoardDetails.taskList[mTaskListPosition].cardList
+
+        cardList.removeAt(mCardPosition)
+
+        val taskList: ArrayList<Task> = mBoardDetails.taskList
+        taskList.removeAt(taskList.size - 1) // AddCard 버튼까지 list 안에 들어간다고 한다.. ?
+
+        taskList[mTaskListPosition].cardList = cardList
+        Log.e("deleted Card:: ", "${mBoardDetails.taskList}")
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
+
+    }
+
+    private fun alterDialogForDeleteCard(cardName: String) {
+        val alertDialog: AlertDialog = AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.alert))
+            .setMessage(resources.getString(R.string.confirmation_message_to_delete_card, cardName))
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setPositiveButton(resources.getString(R.string.yes)) { dialog, which ->
+                dialog.dismiss()
+                deleteCard()
+            }.setNegativeButton(resources.getString(R.string.no)) { dialog, which ->
+                dialog.dismiss()
+            }.create()
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_delete_card, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_delete_card -> {
+                alterDialogForDeleteCard(mBoardDetails.taskList[mTaskListPosition].cardList[mCardPosition].name)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun setupActionBar() {
@@ -48,5 +139,4 @@ class CardDetailsActivity : BaseActivity() {
             superOnBackPressed()
         }
     }
-
 }
