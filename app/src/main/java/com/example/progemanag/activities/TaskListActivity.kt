@@ -118,6 +118,15 @@ class TaskListActivity : BaseActivity() {
         FirestoreClass().addUpdateTaskList(this, mBoardDetails)
     }
 
+    fun cardDetails(taskListPosition: Int, cardPosition: Int) {
+        startActivity(
+            Intent(this@TaskListActivity, CardDetailsActivity::class.java)
+            .putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+            .putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
+            .putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+        )
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_members, menu)
         return super.onCreateOptionsMenu(menu)

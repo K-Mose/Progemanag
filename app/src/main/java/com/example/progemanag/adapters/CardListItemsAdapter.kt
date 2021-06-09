@@ -14,7 +14,7 @@ open class CardListItemsAdapter(
         private var list: ArrayList<Card>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var binding: ItemCardBinding
-    private var onClickListener: View.OnClickListener? = null
+    private var onClickListener: OnClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         binding = ItemCardBinding.inflate(LayoutInflater.from(context), parent, false)
         return MyViewHolder(binding)
@@ -29,8 +29,23 @@ open class CardListItemsAdapter(
         if (holder is MyViewHolder) {
             holder.binding.apply {
                 tvCardName.text = model.name
+
             }
+            holder.itemView.setOnClickListener {
+                if (onClickListener != null) {
+                    onClickListener!!.onClick(position)
+                }
+            }
+
         }
+    }
+
+    fun setOnClickListener(onClickListener: OnClickListener) {
+        this.onClickListener = onClickListener
+    }
+
+    interface OnClickListener {
+        fun onClick(position: Int)
     }
 
     class MyViewHolder(val binding: ItemCardBinding) : RecyclerView.ViewHolder(binding.root)
