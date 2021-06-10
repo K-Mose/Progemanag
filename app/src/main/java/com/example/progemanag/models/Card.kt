@@ -13,7 +13,7 @@ data class Card (
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.createStringArrayList()!!,
-        parcel.toString()!!
+        parcel.readString()!!
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest){
