@@ -16,6 +16,7 @@ import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.Board
 import com.example.progemanag.models.Card
 import com.example.progemanag.models.Task
+import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
 
 class TaskListActivity : BaseActivity() {
@@ -23,6 +24,8 @@ class TaskListActivity : BaseActivity() {
 
     private lateinit var mBoardDetails: Board
     private lateinit var mBoardDocumentId: String
+    private lateinit var mAssignedMemberDetailList: ArrayList<User>
+
     private val membersRegister = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             showProgressDialog(resources.getString(R.string.please_wait))
@@ -59,6 +62,9 @@ class TaskListActivity : BaseActivity() {
             setHasFixedSize(true)
             this.adapter = adapter
         }
+
+        showProgressDialog(resources.getString(R.string.please_wait))
+        FirestoreClass().getAssignedMembersListDetails(this, mBoardDetails.assignedBy)
     }
 
     fun addUpdateTaskListSuccess() {
@@ -121,10 +127,17 @@ class TaskListActivity : BaseActivity() {
     fun cardDetails(taskListPosition: Int, cardPosition: Int) {
         membersRegister.launch(
             Intent(this@TaskListActivity, CardDetailsActivity::class.java)
-            .putExtra(Constants.BOARD_DETAIL, mBoardDetails)
-            .putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
-            .putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+                .putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+                .putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
+                .putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+                .putExtra(Constants.BOARD_MEMBERS_LIST, mAssignedMemberDetailList)
         )
+    }
+
+    fun boardMembersDetailsList(list: ArrayList<User>) {
+        mAssignedMemberDetailList = list
+
+        hideProgressDialog()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

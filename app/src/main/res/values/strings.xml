@@ -72,4 +72,7 @@
 
     <!-- Card Color Dialog-->
     <string name="str_select_label_color">Select Label Color</string>
+
+    <!-- Select Member Dialog -->
+    <string name="str_select_member">Select Member</string>
 </resources>

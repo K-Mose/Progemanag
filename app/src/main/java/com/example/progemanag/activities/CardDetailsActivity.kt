@@ -11,10 +11,12 @@ import android.widget.Toast
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityCardDetailsBinding
 import com.example.progemanag.dialog.LabelColorListDialog
+import com.example.progemanag.dialog.MembersListDialog
 import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.Board
 import com.example.progemanag.models.Card
 import com.example.progemanag.models.Task
+import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
 
 class CardDetailsActivity : BaseActivity() {
@@ -23,8 +25,8 @@ class CardDetailsActivity : BaseActivity() {
     private lateinit var mBoardDetails: Board
     private var mTaskListPosition = -1
     private var mCardPosition = -1
-
     private var mSelectColor = ""
+    private lateinit var mMembersDetailList: ArrayList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +59,9 @@ class CardDetailsActivity : BaseActivity() {
             if (mSelectColor.isNotEmpty()) {
                 setColor()
             }
+            tvSelectMembers.setOnClickListener {
+                membersListDialog()
+            }
         }
     }
 
@@ -70,6 +75,10 @@ class CardDetailsActivity : BaseActivity() {
         if (intent.hasExtra(Constants.CARD_LIST_ITEM_POSITION)) {
             mCardPosition = intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1)
         }
+        if (intent.hasExtra(Constants.BOARD_MEMBERS_LIST)) {
+            mMembersDetailList = intent.getParcelableArrayListExtra<User>(Constants.BOARD_MEMBERS_LIST)!!
+        }
+
 
     }
 
@@ -171,6 +180,33 @@ class CardDetailsActivity : BaseActivity() {
             }
         }
         listDialog.show()
+    }
+
+    private fun membersListDialog() {
+        var cardAssignedMembersList = mBoardDetails.taskList[mTaskListPosition].cardList[mCardPosition].assignedTo
+        if (cardAssignedMembersList.size > 0) {
+            for (i in mMembersDetailList.indices) {
+                for (j in cardAssignedMembersList){
+                    if (mMembersDetailList[i].id == j){
+                        mMembersDetailList[i].selected = true
+                        Log.e("MEMBER_SELECTED:", "${mMembersDetailList[i].name}")
+                    }
+                }
+            }
+        } else {
+            for (i in mMembersDetailList.indices)
+                mMembersDetailList[i].selected = false
+        }
+
+        object : MembersListDialog(
+            this,
+            mMembersDetailList,
+            resources.getString(R.string.str_select_member)
+        ) {
+            override fun onItemSelected(user: User, action: String) {
+                mBoardDetails.taskList[mTaskListPosition].cardList[mCardPosition].assignedTo = user.id
+            }
+        }.show()
     }
 
     private fun setupActionBar() {
