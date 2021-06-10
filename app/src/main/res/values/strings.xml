@@ -69,4 +69,7 @@
     <string name="confirmation_message_to_delete_card">Are you sure you want to delete card \'%1$s\'?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+
+    <!-- Card Color Dialog-->
+    <string name="str_select_label_color">Select Label Color</string>
 </resources>
