@@ -13,7 +13,8 @@ import com.example.progemanag.models.SelectedMembers
 
 data class CardMemberListItemsAdapter (
     private val context: Context,
-    private val list: ArrayList<SelectedMembers>
+    private val list: ArrayList<SelectedMembers>,
+    private val assignMembers: Boolean
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     private var onClickListener: OnClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -30,7 +31,7 @@ data class CardMemberListItemsAdapter (
         val model = list[position]
         if (holder is MyViewHolder) {
             holder.binding.apply{
-                if(position == list.size - 1) {
+                if(position == list.size - 1 && assignMembers) {
                     ivAddMember.visibility = View.VISIBLE
                     ivSelectedMemberImage.visibility = View.GONE
                 } else {

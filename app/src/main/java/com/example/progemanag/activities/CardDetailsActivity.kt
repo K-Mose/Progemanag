@@ -246,7 +246,7 @@ class CardDetailsActivity : BaseActivity() {
         }
 
         if (selectedMembersList.size > 0) {
-            selectedMembersList.add(SelectedMembers("",""))
+            selectedMembersList.add(SelectedMembers("","")) // (+) 아이콘용
             _binding.apply{
                 tvSelectMembers.visibility = View.GONE
                 rvSelectedMembersList.apply{
@@ -255,7 +255,7 @@ class CardDetailsActivity : BaseActivity() {
                         this@CardDetailsActivity,
                         6
                     )
-                    adapter = CardMemberListItemsAdapter(this@CardDetailsActivity, selectedMembersList)
+                    adapter = CardMemberListItemsAdapter(this@CardDetailsActivity, selectedMembersList, true)
                         .also {
                             it.setOnClickListener(object : CardMemberListItemsAdapter.OnClickListener{
                                 override fun onClick() {

@@ -3,6 +3,9 @@ package com.example.progemanag.models
 import android.os.Parcel
 import android.os.Parcelable
 
+/**
+ * SelectedMembers for assignedTo field in Card class .
+ */
 data class SelectedMembers(
     val id: String = "",
     val image: String = ""
@@ -10,8 +13,7 @@ data class SelectedMembers(
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         parcel.readString()!!
-    ) {
-    }
+    )
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest){
         writeString(id)
