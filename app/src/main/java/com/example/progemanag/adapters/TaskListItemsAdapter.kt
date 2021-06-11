@@ -8,14 +8,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.progemanag.activities.TaskListActivity
 import com.example.progemanag.databinding.ItemTaskBinding
 import com.example.progemanag.models.Task
+import java.util.*
+import kotlin.collections.ArrayList
 
 open class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var mPositionDraggedFrom = -1
+    private var mPositionDraggedTo = -1
     private lateinit var binding: ItemTaskBinding
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         binding = ItemTaskBinding.inflate(LayoutInflater.from(context), parent, false)
@@ -123,14 +130,67 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
                                 }
                             }
                         )
-                    }
 
+                        // Drag & Drop
+                        val dividerItemDecoration = DividerItemDecoration(context,
+                        DividerItemDecoration.VERTICAL)
+
+                        rvCardList.addItemDecoration(dividerItemDecoration)
+
+                        val helper = ItemTouchHelper(
+                            object : ItemTouchHelper.SimpleCallback(
+                                ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+                            ) {
+                                override fun onMove(
+                                    recyclerView: RecyclerView,
+                                    dragged: RecyclerView.ViewHolder,
+                                    target: RecyclerView.ViewHolder
+                                ): Boolean {
+                                    val draggedPosition = dragged.adapterPosition
+                                    val targetPosition = target.adapterPosition
+
+                                    if (mPositionDraggedFrom == -1) {
+                                        mPositionDraggedFrom = draggedPosition
+                                    }
+                                    mPositionDraggedTo = targetPosition
+
+                                    // reposition card object
+                                    Collections.swap(list[position].cardList, draggedPosition, targetPosition)
+                                    notifyItemMoved(draggedPosition, targetPosition)
+                                    return false
+                                }
+
+                                override fun onSwiped(
+                                    viewHolder: RecyclerView.ViewHolder,
+                                    direction: Int
+                                ) {
+                                    TODO("Not yet implemented")
+                                }
+
+                                override fun clearView(
+                                    recyclerView: RecyclerView,
+                                    viewHolder: RecyclerView.ViewHolder
+                                ) {
+                                    super.clearView(recyclerView, viewHolder)
+                                    if (mPositionDraggedFrom != -1 && mPositionDraggedTo != -1
+                                        && mPositionDraggedFrom != mPositionDraggedTo) {
+                                        (context as TaskListActivity).updateCardsInTaskList(
+                                            position,
+                                            list[position].cardList
+                                        )
+                                    }
+                                    mPositionDraggedTo = -1
+                                    mPositionDraggedFrom = -1
+                                }
+                            }
+                        )
+                        helper.attachToRecyclerView(holder.binding.rvCardList)
+                    }
                 rvCardList.apply {
                     layoutManager = LinearLayoutManager(context)
                     setHasFixedSize(true)
                     this.adapter = adapter
                 }
-
             }
         }
     }
@@ -157,7 +217,5 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
     private fun Int.toDp(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
     private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
-    class MyViewHolder(val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
-
-    }
+    class MyViewHolder(val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root)
 }
