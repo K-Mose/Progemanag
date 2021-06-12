@@ -94,14 +94,18 @@ class FirestoreClass {
     }
 
     // Firebase에  Key-Value 형식의 데이터로 업이트.
-    fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
+    fun updateUserProfileData(activity: BaseActivity, userHashMap: HashMap<String, Any>) {
         mFireStore.collection(Constants.USER)
                 .document(getCurrentUserID())
                 .update(userHashMap)
                 .addOnSuccessListener {
                     Log.i(activity.javaClass.simpleName, "Profile Data updated Successfully!")
                     Toast.makeText(activity, "Profile Data updated Successfully!", Toast.LENGTH_SHORT).show()
-                    activity.profileUpdateSuccess()
+                    when(activity){
+                        is MainActivity -> activity.tokenUpdateSuccess()
+                        is MyProfileActivity -> activity.profileUpdateSuccess()
+                    }
+
                 }.addOnFailureListener { e ->
                     activity.hideProgressDialog()
                     Log.e(activity.javaClass.simpleName,
@@ -132,7 +136,7 @@ class FirestoreClass {
     }
 
     // Sign In
-    fun loadUserData(activity: Activity, readBoardsList: Boolean = false){
+    fun loadUserData(activity: BaseActivity, readBoardsList: Boolean = false){
         mFireStore.collection(Constants.USER)
                 .document(getCurrentUserID())
                 .get()

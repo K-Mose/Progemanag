@@ -77,5 +77,5 @@
     <string name="str_select_member">Select Member</string>
     
     <!-- Channel Name -->
-    <string name="defualt_notification_channel_id">projemanag_notification_channel_id</string>
+    <string name="default_notification_channel_id">projemanag_notification_channel_id</string>
 </resources>
