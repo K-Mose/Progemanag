@@ -21,9 +21,11 @@ import com.example.progemanag.firebase.FirestoreClass
 import com.example.progemanag.models.Board
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.installations.FirebaseInstallations
+import com.google.firebase.messaging.FirebaseMessaging
 import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -37,7 +39,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private val dataReload = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         // RequestCode가 필요 없어짐
         if (result.resultCode == Activity.RESULT_OK) {
-            FirestoreClass().loadUserData(this)
+            FirestoreClass().loadUserData(this, true)
         } else {
             Log.e("Cancelled", "Cancelled")
         }
@@ -59,16 +61,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             FirestoreClass().loadUserData(this, true)
         } else {
 //            FirebaseInstanceId.getInstance() // Deprecated
-            FirebaseInstallations.getInstance()
-                .getToken(false).addOnSuccessListener{ instanceIdResult ->
-                    updateFCMToken(instanceIdResult.token)
+            FirebaseMessaging.getInstance()
+                .token.addOnCompleteListener { task ->
+                    updateFCMToken(task.result!!)
                 }
         }
 
         _binding.apply {
             navView.setNavigationItemSelectedListener(this@MainActivity)
             lyAppBarMain.fabCreatingBoard.setOnClickListener {
-                dataReload.launch(Intent(this@MainActivity, CreateBoardActivity::class.java))
+                dataReload.launch(Intent(this@MainActivity, CreateBoardActivity::class.java)
+                    .putExtra(Constants.NAME, mUserName))
             }
         }
 

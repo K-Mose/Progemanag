@@ -11,6 +11,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.progemanag.R
 import com.example.progemanag.activities.MainActivity
+import com.example.progemanag.activities.SignInActivity
+import com.example.progemanag.firebase.FirestoreClass
+import com.example.progemanag.utils.Constants
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -21,6 +24,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "FROM: ${remoteMessage.from}")
         remoteMessage.data.isNotEmpty().let {
             Log.d(TAG, "Message data payload: $it")
+
+            var title = remoteMessage.data[Constants.FCM_KEY_TITLE]!!
+            val message = remoteMessage.data[Constants.FCM_KEY_MESSAGE]!!
+
+            sendNotification(title, message) // 유저에게 보내는 알림
+
         }
 
         remoteMessage.notification?.let {
@@ -38,17 +47,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // ..
     }
 
-    private fun sendNotification(messageBody: String) {
-        val intent = Intent(this, MainActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    private fun sendNotification(title:String, message: String) {
+        val intent = if (FirestoreClass().getCurrentUserID().isNotEmpty()) {
+            Intent(this, MainActivity::class.java)
+        } else {
+                Intent(this, SignInActivity::class.java)
+        }.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
         val channelId = this.resources.getString(R.string.default_notification_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(
             this, channelId
         ).setSmallIcon(R.drawable.ic_stat_ic_notification)
-            .setContentTitle("Title")
-            .setContentText("Message")
+            .setContentTitle(title)
+            .setContentText(message)
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
