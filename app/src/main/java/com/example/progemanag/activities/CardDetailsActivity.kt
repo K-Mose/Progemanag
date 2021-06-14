@@ -40,7 +40,6 @@ class CardDetailsActivity : BaseActivity() {
         getIntentData()
         setupActionBar()
         setupSelectedMembersList()
-        Log.e("onCreated:: ", "${mBoardDetails.taskList}")
 
         _binding.apply {
             mBoardDetails

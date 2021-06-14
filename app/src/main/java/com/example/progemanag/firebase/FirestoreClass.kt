@@ -58,6 +58,27 @@ class FirestoreClass {
                 }
     }
 
+    fun deleteBoard(activity: BaseActivity, board: Board) {
+        if (board.assignedBy[0] == getCurrentUserID()) {
+            mFireStore.collection(Constants.BOARDS)
+                .document(board.documentId)
+                .delete()
+                .addOnSuccessListener {
+                    Toast.makeText(activity, "Board Deleted Successfully!", Toast.LENGTH_SHORT).show()
+                    when(activity) {
+                        is TaskListActivity -> activity.deleteBoardSuccess()
+                    }
+                }
+                .addOnFailureListener {
+                    activity.hideProgressDialog()
+                    activity.showErrorSnackBar("Failed to Delete Board")
+                }
+        } else {
+            activity.hideProgressDialog()
+            activity.showErrorSnackBar("Only Creator can delete board")
+        }
+    }
+
     fun getBoardDetails(activity: TaskListActivity, documentId: String) {
         mFireStore.collection(Constants.BOARDS)
             .document(documentId)

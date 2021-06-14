@@ -115,10 +115,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     adapter = BoardItemsAdapter(this@MainActivity, boardsList).apply {
                         setOnclickListener(object: BoardItemsAdapter.OnClickListener{
                             override fun onClick(position: Int, model: Board) {
-                                startActivity(
-                                    Intent(this@MainActivity, TaskListActivity::class.java)
-                                        .putExtra(Constants.DOCUMENT_ID, model.documentId)
-                                )
+//                                startActivity(
+//                                    Intent(this@MainActivity, TaskListActivity::class.java)
+//                                        .putExtra(Constants.DOCUMENT_ID, model.documentId)
+//                                )
+                                dataReload.launch(Intent(this@MainActivity, TaskListActivity::class.java)
+                                    .putExtra(Constants.DOCUMENT_ID, model.documentId))
                             }
                         })
                     }

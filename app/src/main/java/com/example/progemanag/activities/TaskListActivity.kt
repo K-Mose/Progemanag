@@ -153,8 +153,19 @@ class TaskListActivity : BaseActivity() {
                         Intent(this, MembersActivity::class.java)
                         .putExtra(Constants.BOARD_DETAIL, mBoardDetails))
             }
+            R.id.action_delete_board -> {
+                showProgressDialog(resources.getString(R.string.please_wait))
+                FirestoreClass().deleteBoard(this, mBoardDetails)
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun deleteBoardSuccess() {
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+//        setResult(Constants.DELETE_BOARD)
+        finish()
     }
 
     fun updateCardsInTaskList(tasListPosition: Int, cards: ArrayList<Card>) {
