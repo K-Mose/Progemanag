@@ -179,7 +179,7 @@ class MembersActivity : BaseActivity() {
                     val dataObject = JSONObject()
                     dataObject.put(Constants.FCM_KEY_TITLE, "Assigned to the board $boardName")
                     dataObject.put(Constants.FCM_KEY_MESSAGE, "You have been assigned to the Board by ${mAssignedMembersList[0].name}")
-
+                    dataObject.put(Constants.FCM_METHOD, Constants.BOARDS)
                     jsonRequest.put(Constants.FCM_KEY_DATA, dataObject)
                     jsonRequest.put(Constants.FCM_KEY_TO, token)
                     outputStream.write(jsonRequest.toString().toByteArray())

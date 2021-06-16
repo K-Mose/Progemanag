@@ -8,6 +8,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.cardview.widget.CardView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.progemanag.R
 import com.example.progemanag.adapters.TaskListItemsAdapter
@@ -18,6 +21,15 @@ import com.example.progemanag.models.Card
 import com.example.progemanag.models.Task
 import com.example.progemanag.models.User
 import com.example.progemanag.utils.Constants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.lang.Exception
+import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.URL
+import kotlin.reflect.KClass
 
 class TaskListActivity : BaseActivity() {
     private lateinit var _binding: ActivityTaskListBinding
@@ -101,16 +113,16 @@ class TaskListActivity : BaseActivity() {
 
         val card = Card(name, FirestoreClass().getCurrentUserID(), cardAssignedUserList)
         mBoardDetails.taskList[position].cardList.add(card)
-        // replcae old task with new task
-//        val cardList = mBoardDetails.taskList[position].cardList
-//        cardList.add(card)
-//        // 개별적으로 업데이트 할 필요 없이 Board 통체로 업데이트
-//        val task = Task(
-//                mBoardDetails.taskList[position].title,
-//                mBoardDetails.taskList[position].createdBy,
-//                cardList
-//        )
-//        mBoardDetails.taskList[position] = task
+
+        // create card notification -  assigned된 멤버에게 각각 알림을 보냄
+        for ( user in mAssignedMemberDetailList) {
+            if (FirestoreClass().getCurrentUserID() != user.id){
+                Log.i("Send_TO:",user.id)
+                CardViewModel(name,user.fcmToken).cardCreated()
+            }
+        }
+
+
         showProgressDialog(resources.getString(R.string.please_wait))
         FirestoreClass().addUpdateTaskList(this, mBoardDetails)
     }
@@ -164,7 +176,6 @@ class TaskListActivity : BaseActivity() {
     fun deleteBoardSuccess() {
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
-//        setResult(Constants.DELETE_BOARD)
         finish()
     }
 
@@ -189,4 +200,60 @@ class TaskListActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Card create / update / delete Notifications
+     */
+    private inner class CardViewModel(val cardName: String, val token: String) : ViewModel() {
+        fun cardCreated() {
+            viewModelScope.launch {
+                val result = try {
+                    CardCoroutine(cardName, token).cardCrated()
+                } catch (e: SocketTimeoutException) {
+                    "Connection TimeOut"
+                } catch (e: Exception) {
+                    "Error " + e.message
+                }
+                Log.i("Notification_Result:",result)
+            }
+        }
+    }
+
+    private inner class CardCoroutine(val cardName: String, val token: String) {
+        suspend fun cardCrated(): String{
+            return withContext(Dispatchers.IO) {
+                (URL(Constants.FCM_BASE_URL).openConnection() as HttpURLConnection).run {
+                    doOutput = true
+                    doInput = true
+                    instanceFollowRedirects = false
+                    requestMethod = "POST"
+
+                    setRequestProperty("Content-Type", "application/json")
+                    setRequestProperty("charset", "utf-8")
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty(
+                        Constants.FCM_AUTHORIZATION, "${Constants.FCM_KEY}=${Constants.FCM_SERVER_KEY}"
+                    )
+                    useCaches = false
+                    val jsonRequest = JSONObject()
+                    val dataObject = JSONObject()
+                    dataObject.put(Constants.FCM_KEY_TITLE, "At the board ${mBoardDetails.name}")
+                    dataObject.put(Constants.FCM_KEY_MESSAGE, "new Card added $cardName ")
+                    dataObject.put(Constants.FCM_METHOD, Constants.CARDS)
+                    dataObject.put(Constants.DOCUMENT_ID, mBoardDocumentId)
+                    jsonRequest.put(Constants.FCM_KEY_DATA, dataObject)
+                    jsonRequest.put(Constants.FCM_KEY_TO, token)
+                    outputStream.write(jsonRequest.toString().toByteArray())
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        inputStream.use {
+                            it.reader().use { reader ->
+                                reader.readText()
+                            }
+                        }
+                    } else {
+                        responseMessage
+                    }
+                }
+            }
+        }
+    }
 }

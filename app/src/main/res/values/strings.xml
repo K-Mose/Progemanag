@@ -25,6 +25,7 @@
     <string name="nav_my_profile">My Profile</string>
     <string name="nav_sign_out">Sign Out</string>
     <string name="delete_board">Delete Board</string>
+    <string name="modify_board">Modify Board</string>
 
     <!-- Profile -->
     <string name="mobile">Mobile</string>

@@ -184,7 +184,7 @@ class FirestoreClass {
 
     fun getAssignedMembersListDetails(activity: BaseActivity, assignedTo: ArrayList<String>) {
         mFireStore
-            .collection(Constants.USER)
+             .collection(Constants.USER)
             .whereIn(Constants.ID, assignedTo)
             .get()
             .addOnSuccessListener { document ->

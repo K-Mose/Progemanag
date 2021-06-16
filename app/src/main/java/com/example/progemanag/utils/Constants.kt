@@ -13,7 +13,7 @@ object Constants {
     const val USER: String = "users"
 
     const val BOARDS: String = "boards"
-
+    const val CARDS: String = "cards"
     const val IMAGE: String = "image"
     const val NAME: String = "name"
     const val MOBILE: String = "mobile"
@@ -50,6 +50,11 @@ object Constants {
     const val FCM_KEY_DATA:String = "data"
     const val FCM_KEY_TO:String = "to"
 
+    const val FCM_METHOD = "FCM_METHOD"
+
+    // Channel
+    const val CHANNEL_MEMBER = "CHANNEL_MEMBER"
+    const val CHANNEL_CARD = "CHANNEL_CARD"
 
     fun showImageChooser(register: ActivityResultLauncher<Intent>) {
         var galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)

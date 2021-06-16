@@ -46,36 +46,42 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        _binding = ActivityMainBinding.inflate(layoutInflater)
+        if (FirestoreClass().getCurrentUserID().isNotEmpty()) {
+
+            super.onCreate(savedInstanceState)
+            _binding = ActivityMainBinding.inflate(layoutInflater)
 
 
-        setContentView(_binding.root)
-        setupActionBar()
-        mSharedPreferences =
-            this.getSharedPreferences(Constants.PROJEMANAG_PREFERENCE, Context.MODE_PRIVATE)
+            setContentView(_binding.root)
+            setupActionBar()
+            mSharedPreferences =
+                this.getSharedPreferences(Constants.PROJEMANAG_PREFERENCE, Context.MODE_PRIVATE)
 
-        val tokenUpdated = mSharedPreferences.getBoolean(Constants.FCM_TOKEN_UPDATED, false)
-        if (tokenUpdated) {
-            showProgressDialog(resources.getString(R.string.please_wait))
+            val tokenUpdated = mSharedPreferences.getBoolean(Constants.FCM_TOKEN_UPDATED, false)
+            if (tokenUpdated) {
+                showProgressDialog(resources.getString(R.string.please_wait))
+                FirestoreClass().loadUserData(this, true)
+            } else {
+//            FirebaseInstanceId.getInstance() // Deprecated
+                FirebaseMessaging.getInstance()
+                    .token.addOnCompleteListener { task ->
+                        updateFCMToken(task.result!!)
+                    }
+            }
+
+            _binding.apply {
+                navView.setNavigationItemSelectedListener(this@MainActivity)
+                lyAppBarMain.fabCreatingBoard.setOnClickListener {
+                    dataReload.launch(Intent(this@MainActivity, CreateBoardActivity::class.java)
+                        .putExtra(Constants.NAME, mUserName))
+                }
+            }
+
             FirestoreClass().loadUserData(this, true)
         } else {
-//            FirebaseInstanceId.getInstance() // Deprecated
-            FirebaseMessaging.getInstance()
-                .token.addOnCompleteListener { task ->
-                    updateFCMToken(task.result!!)
-                }
+            startActivity(Intent(this@MainActivity, IntroActivity::class.java))
+            finish()
         }
-
-        _binding.apply {
-            navView.setNavigationItemSelectedListener(this@MainActivity)
-            lyAppBarMain.fabCreatingBoard.setOnClickListener {
-                dataReload.launch(Intent(this@MainActivity, CreateBoardActivity::class.java)
-                    .putExtra(Constants.NAME, mUserName))
-            }
-        }
-
-        FirestoreClass().loadUserData(this, true)
     }
 
     fun updateNavigationUserDetails(user: User, readBoardsList: Boolean) {
