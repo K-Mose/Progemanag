@@ -79,6 +79,22 @@ class FirestoreClass {
         }
     }
 
+    fun modifyBoard(activity: CreateBoardActivity, board: Board) {
+        val boardHashMap = HashMap<String, Any>()
+        boardHashMap[Constants.NAME] = board.name
+        boardHashMap[Constants.IMAGE] = board.image
+        mFireStore.collection(Constants.BOARDS)
+            .document(board.documentId)
+            .update(boardHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName, "Board updated successfully.")
+                activity.boardCreatedSuccessfully()
+            }
+            .addOnFailureListener { e ->
+                Log.e(activity.javaClass.simpleName, "Error while updating a board.", e)
+            }
+    }
+
     fun getBoardDetails(activity: TaskListActivity, documentId: String) {
         mFireStore.collection(Constants.BOARDS)
             .document(documentId)

@@ -37,9 +37,10 @@ class TaskListActivity : BaseActivity() {
     private lateinit var mBoardDetails: Board
     private lateinit var mBoardDocumentId: String
     lateinit var mAssignedMemberDetailList: ArrayList<User>
-
+    private var modified = false
     private val membersRegister = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
+            modified = true
             showProgressDialog(resources.getString(R.string.please_wait))
             FirestoreClass().getBoardDetails(this, mBoardDocumentId)
         } else {
@@ -169,6 +170,13 @@ class TaskListActivity : BaseActivity() {
                 showProgressDialog(resources.getString(R.string.please_wait))
                 FirestoreClass().deleteBoard(this, mBoardDetails)
             }
+            R.id.action_modify_board -> {
+                membersRegister.launch(
+                    Intent(this, CreateBoardActivity::class.java)
+                        .putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+                        .putExtra(Constants.DOCUMENT_ID, mBoardDocumentId)
+                )
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -195,6 +203,8 @@ class TaskListActivity : BaseActivity() {
             setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
             title = mBoardDetails.name
             _binding.toolbarTaskListActivity.setNavigationOnClickListener {
+                if (modified)
+                    setResult(Activity.RESULT_OK)
                 superOnBackPressed()
             }
         }

@@ -2,17 +2,16 @@ package com.example.progemanag.activities
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.example.progemanag.R
 import com.example.progemanag.databinding.ActivityCreateBoardBinding
@@ -27,9 +26,10 @@ class CreateBoardActivity : BaseActivity() {
     private lateinit var _binding: ActivityCreateBoardBinding
 
     private var mSelectedImageFileUri: Uri? = null
+    private var isCreate = true
 
     private lateinit var mUserName: String
-
+    private var mBoardDetail: Board? = null
     private var mBoardImageUrl: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,31 +38,42 @@ class CreateBoardActivity : BaseActivity() {
         setContentView(_binding.root)
         setupActionbar()
 
-        if (intent.hasExtra(Constants.NAME)) {
-            mUserName = intent.getStringExtra(Constants.NAME)!!
-        }
-
-        //
-        _binding.apply {
-            ivBoardImage.setOnClickListener {
-                if(ContextCompat.checkSelfPermission(this@CreateBoardActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    Constants.showImageChooser(imageResult)
-                } else {
-                    ActivityCompat.requestPermissions(
-                            this@CreateBoardActivity,
-                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                            Constants.READ_STORAGE_PERMISSION_CODE
-                    )
-                }
-            }
-            btnCreate.setOnClickListener {
-                if(mSelectedImageFileUri != null) {
+        if (intent.hasExtra(Constants.BOARD_DETAIL)) {
+            mBoardDetail = intent.getParcelableExtra(Constants.BOARD_DETAIL)
+            setupBoard(mBoardDetail!!)
+            _binding.btnModify.setOnClickListener {
+                if (mSelectedImageFileUri != null) {
                     uploadBoardImage()
                 } else {
                     showProgressDialog(resources.getString(R.string.please_wait))
-                    createBoard()
+                    modifyBoard()
                 }
+            }
+        } else {
+            if (intent.hasExtra(Constants.NAME)) {
+                mUserName = intent.getStringExtra(Constants.NAME)!!
+            }
+            _binding.apply {
+                btnCreate.setOnClickListener {
+                    if(mSelectedImageFileUri != null) {
+                        uploadBoardImage()
+                    } else {
+                        showProgressDialog(resources.getString(R.string.please_wait))
+                        createBoard()
+                    }
+                }
+            }
+        }
+        _binding.ivBoardImage.setOnClickListener {
+            if(ContextCompat.checkSelfPermission(this@CreateBoardActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+                Constants.showImageChooser(imageResult)
+            } else {
+                ActivityCompat.requestPermissions(
+                    this@CreateBoardActivity,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    Constants.READ_STORAGE_PERMISSION_CODE
+                )
             }
         }
     }
@@ -91,7 +102,10 @@ class CreateBoardActivity : BaseActivity() {
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                     Log.e("Downloadable Image URL", uri.toString())
                     mBoardImageUrl = uri.toString()
-                    createBoard()
+                    if (isCreate)
+                        createBoard()
+                    else
+                        modifyBoard()
                 }
             }.addOnFailureListener { exception ->
                 Toast.makeText(this@CreateBoardActivity, exception.message, Toast.LENGTH_LONG).show()
@@ -134,6 +148,38 @@ class CreateBoardActivity : BaseActivity() {
             } catch (e: Exception){
                 e.printStackTrace()
             }
+        } else {
+            mSelectedImageFileUri = null
         }
+    }
+
+    private fun modifyBoard() {
+        _binding.apply {
+            val board = Board(
+                etBoardName.text.toString(),
+                mBoardImageUrl,
+                mBoardDetail!!.createdBy,
+                mBoardDetail!!.assignedBy,
+                intent.getStringExtra(Constants.DOCUMENT_ID)!!,
+                mBoardDetail!!.taskList
+            )
+            FirestoreClass().modifyBoard(this@CreateBoardActivity, board)
+        }
+    }
+    private fun setupBoard(board: Board) {
+        isCreate = false
+        _binding.apply {
+            Glide
+                .with(this@CreateBoardActivity)
+                .load(board.image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(ivBoardImage)
+            etBoardName.setText(board.name)
+            btnCreate.visibility = View.GONE
+            btnModify.visibility = View.VISIBLE
+        }
+        mUserName = board.createdBy
+        mBoardImageUrl = board.image
     }
 }

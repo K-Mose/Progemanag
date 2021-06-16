@@ -79,6 +79,22 @@
                 android:textSize="@dimen/btn_text_size"
                 android:text="@string/create"
                 />
+            <Button
+                android:id="@+id/btn_modify"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_button_rounded"
+                app:backgroundTint="@null"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_marginStart="@dimen/btn_marginStartEnd"
+                android:layout_marginEnd="@dimen/btn_marginStartEnd"
+                android:layout_marginTop="@dimen/create_board_btn_marginTop"
+                android:paddingTop="@dimen/btn_paddingTopBottom"
+                android:paddingBottom="@dimen/btn_paddingTopBottom"
+                android:textSize="@dimen/btn_text_size"
+                android:text="@string/modify"
+                android:visibility="gone"
+                />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
     </LinearLayout>

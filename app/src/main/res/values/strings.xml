@@ -35,6 +35,7 @@
     <!-- Create Board -->
     <string name="create_board_title">Create Board</string>
     <string name="create">CREATE</string>
+    <string name="modify">MODIFY</string>
     <string name="board_name">Board Name</string>
 
     <!-- Main Content -->
